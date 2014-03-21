@@ -490,6 +490,7 @@ static NSOperationQueue *_sharedNetworkQueue;
         NSArray *operations = _sharedNetworkQueue.operations;
         NSUInteger index = [operations indexOfObject:operation];
         BOOL operationFinished = NO;
+        BOOL addOperation = NO;      
         if(index != NSNotFound) {
           
           MKNetworkOperation *queuedOperation = (MKNetworkOperation*) (operations)[index];
@@ -499,9 +500,12 @@ static NSOperationQueue *_sharedNetworkQueue;
               [queuedOperation updateHandlersFromOperation:operation];
             });
           }
+          addOperation = operationFinished;
+        } else {
+          addOperation = (expiryTimeInSeconds <= 0 || forceReload);
         }
         
-        if(expiryTimeInSeconds <= 0 || forceReload || operationFinished)
+        if(addOperation)
           [_sharedNetworkQueue addOperation:operation];
         // else don't do anything
       });
